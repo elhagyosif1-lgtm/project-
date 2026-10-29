@@ -1,0 +1,19 @@
+{
+  "name": "sayyad-alforas-agent",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vercel dev",
+    "check": "node --check api/chat.js && node --check api/auth.js && node --check api/health.js"
+  },
+  "dependencies": {
+    "@google/genai": "^1.30.0"
+  },
+  "devDependencies": {
+    "vercel": "^48.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
