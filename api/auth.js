@@ -1,0 +1,7 @@
+import crypto from 'node:crypto';
+const COOKIE='sayyad_owner';
+const secret=()=>process.env.SESSION_SECRET||'';
+const sign=v=>crypto.createHmac('sha256',secret()).update(v).digest('hex');
+const equal=(a,b)=>{const x=Buffer.from(String(a||'')),y=Buffer.from(String(b||''));return x.length===y.length&&crypto.timingSafeEqual(x,y)};
+export default async function handler(req,res){if(req.method!=='POST')return res.status(405).json({error:'الطريقة غير مسموحة'});if(!process.env.OWNER_ACCESS_CODE||secret().length<32)return res.status(503).json({error:'أكمل OWNER_ACCESS_CODE وSESSION_SECRET في إعدادات البيئة أولاً.'});if(!equal(req.body?.code,process.env.OWNER_ACCESS_CODE))return res.status(401).json({error:'رمز الدخول غير صحيح'});const payload=Buffer.from(JSON.stringify({owner:true,exp:Date.now()+604800000})).toString('base64url');const token=payload+'.'+sign(payload);res.setHeader('Set-Cookie',COOKIE+'='+token+'; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=604800');return res.status(200).json({ok:true})}
+export function isOwner(req){if(secret().length<32)return false;const raw=(req.headers.cookie||'').split(';').map(x=>x.trim()).find(x=>x.startsWith(COOKIE+'='))?.slice(COOKIE.length+1);if(!raw)return false;const [p,s]=raw.split('.');if(!p||!equal(s,sign(p)))return false;try{const d=JSON.parse(Buffer.from(p,'base64url').toString());return d.owner===true&&d.exp>Date.now()}catch{return false}}
