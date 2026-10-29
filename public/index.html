@@ -1,10 +1,485 @@
 <!doctype html>
-<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#08131c"><title>صيّاد الفرص | Gemini</title><style>
-:root{color-scheme:dark;--bg:#08131c;--line:#263b4a;--text:#edf5fa;--muted:#9bb1bd;--cyan:#48e0ce}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% -10%,#163b49,transparent 45%),var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif}.wrap{max-width:900px;margin:auto;padding:16px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0 20px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:15px;background:linear-gradient(145deg,#48e0ce,#157a87);display:grid;place-items:center;font-size:25px;color:#062027}.muted,small,.status{color:var(--muted)}.panel{background:#101f2bdb;border:1px solid var(--line);border-radius:22px;padding:18px;margin:12px 0}.hidden{display:none!important}input,textarea,button{font:inherit}input,textarea{width:100%;background:#091720;border:1px solid var(--line);border-radius:13px;color:var(--text);padding:14px;outline:none}textarea{min-height:95px;resize:vertical}button{border:0;border-radius:13px;padding:12px 18px;background:var(--cyan);color:#062027;font-weight:750;cursor:pointer}button:disabled{opacity:.5;cursor:wait}.row{display:flex;gap:10px;align-items:center}.row input{flex:1}.messages{display:flex;flex-direction:column;gap:12px;min-height:240px;max-height:55vh;overflow:auto;padding:4px}.msg{padding:13px 15px;border-radius:16px;white-space:pre-wrap;line-height:1.8;max-width:95%;overflow-wrap:anywhere}.user{background:#164451;align-self:flex-start}.bot{background:#172a38;border:1px solid var(--line);align-self:flex-end}.composer{display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:14px}.status{font-size:13px}.tag{border:1px solid #2e665f;border-radius:99px;padding:6px 10px;color:var(--cyan);font-size:12px}.quick{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.quick button{background:#162c38;color:var(--text);border:1px solid var(--line);font-size:13px}@media(max-width:600px){.wrap{padding:12px}.panel{padding:14px}.composer{grid-template-columns:1fr}.composer button{width:100%}}
-</style></head><body><main class="wrap"><header class="top"><div class="brand"><div class="logo">⌕</div><div><h2 style="margin:0">صيّاد الفرص</h2><small>مساعدك المدعوم بـ Gemini</small></div></div><span class="tag">خاص بالمالك</span></header>
-<section id="login" class="panel"><h3>دخول المالك</h3><p class="muted">أدخل رمز الدخول الذي تضبطه في إعدادات المشروع.</p><div class="row"><input id="code" type="password" placeholder="رمز الدخول" autocomplete="current-password"><button id="loginBtn">دخول</button></div><p id="loginStatus" class="status"></p></section>
-<section id="app" class="hidden"><div class="panel"><div class="row" style="justify-content:space-between"><div><b>مركز قيادة الفرص</b><div class="status" id="state">جارٍ التحقق...</div></div><span class="tag">العربية</span></div><div class="quick"><button data-prompt="ابحث عن فرص دخل حقيقية متاحة الآن لمستخدم في مصر يعمل من الهاتف، واذكر المصادر وشروط الدفع.">فرص دخل من الهاتف</button><button data-prompt="قيّم أفضل منصات العمل الحر والمهام الصغيرة المناسبة لمصر، مع مخاطر كل منصة.">تقييم المنصات</button><button data-prompt="ضع لي خطة عملية للحصول على أول عميل مدفوع خلال 48 ساعة دون رأس مال.">خطة أول عميل</button></div></div>
-<div class="panel"><div id="messages" class="messages"><div class="msg bot">أنا جاهز للبحث والتحليل والتخطيط. اكتب المهمة التي تريدها.</div></div><div class="composer"><textarea id="prompt" placeholder="اكتب تعليماتك بالعربية..."></textarea><button id="send">إرسال</button></div><p class="status" id="sendStatus">مفتاح API محفوظ على الخادم ولا يظهر في المتصفح.</p></div><div class="panel"><b>حالة النظام</b><p class="muted">هذه النسخة توفر شات Gemini والبحث المدمج. التشغيل المستمر وحفظ المهام والتنبيهات والتقديم الآلي تحتاج خدمات خلفية وقاعدة بيانات وربط مصادر إضافية.</p></div></section></main>
-<script>
-const $=id=>document.getElementById(id);let history=[];function showApp(){$("login").classList.add("hidden");$("app").classList.remove("hidden");health()}async function health(){try{const r=await fetch("/api/health");if(r.ok){const d=await r.json();$("state").textContent=d.configured.gemini?"متصل • "+d.configured.model:"أضف مفتاح Gemini في إعدادات الخادم"}else $("state").textContent="تعذر التحقق من الخدمة"}catch{$("state").textContent="تعذر فحص الخدمة"}}$("loginBtn").onclick=async()=>{$("loginStatus").textContent="جارٍ التحقق...";try{const r=await fetch("/api/auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({code:$("code").value})});const d=await r.json();if(!r.ok)throw Error(d.error);showApp()}catch(e){$("loginStatus").textContent=e.message}};function add(text,who){const el=document.createElement("div");el.className="msg "+who;el.textContent=text;$("messages").append(el);$("messages").scrollTop=$("messages").scrollHeight}async function send(text){text=(text||$("prompt").value).trim();if(!text)return;$("prompt").value="";add(text,"user");history.push({role:"user",text});$("send").disabled=true;$("sendStatus").textContent="Gemini يحلل طلبك...";try{const r=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:text,history:history.slice(0,-1)})});const d=await r.json();if(!r.ok)throw Error(d.error);add(d.reply,"bot");history.push({role:"model",text:d.reply});$("sendStatus").textContent="الرد بواسطة "+d.model}catch(e){add(e.message,"bot");$("sendStatus").textContent="تعذر تنفيذ الطلب"}finally{$("send").disabled=false}}$("send").onclick=()=>send();$("prompt").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}});document.querySelectorAll("[data-prompt]").forEach(b=>b.onclick=()=>send(b.dataset.prompt));
-</script></body></html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#08131c" />
+  <title>صيّاد الفرص | مدير المالك</title>
+  <style>
+    :root {
+      --bg: #08131c;
+      --bg-soft: #0f1f2b;
+      --panel: rgba(15, 31, 43, 0.88);
+      --panel-strong: rgba(20, 38, 52, 0.95);
+      --line: #2a4658;
+      --text: #edf5fa;
+      --muted: #9bb1bd;
+      --cyan: #48e0ce;
+      --purple: #8d8cff;
+      --gold: #f4d77d;
+      --red: #ff7d7d;
+      --success: #8ef0b4;
+      --shadow: 0 16px 36px rgba(0,0,0,0.28);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Tahoma, Arial, sans-serif;
+      background: radial-gradient(circle at top, #163b49 0%, #08131c 38%, #050b12 100%);
+      color: var(--text);
+    }
+
+    .wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px 18px 60px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 22px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      display: grid;
+      place-items: center;
+      font-size: 1.5rem;
+      color: #06121b;
+      font-weight: 700;
+      box-shadow: var(--shadow);
+    }
+
+    .brand h2 {
+      margin: 0;
+      font-size: 1.5rem;
+    }
+
+    .status {
+      border: 1px solid var(--line);
+      background: rgba(20,38,52,0.55);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 0.82rem;
+    }
+
+    .status.ok {
+      border-color: rgba(142,240,180,0.5);
+      color: var(--success);
+    }
+
+    .status.bad {
+      border-color: rgba(255,125,125,0.5);
+      color: var(--red);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 22px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .hidden { display: none !important; }
+
+    h3 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.7;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    label {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    input, textarea, button {
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(8, 19, 28, 0.8);
+      color: var(--text);
+      font: inherit;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 12px 14px;
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    button {
+      cursor: pointer;
+      padding: 12px 16px;
+      font-weight: 700;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button:active { transform: translateY(0); }
+
+    .primary {
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      color: #09151d;
+      border: none;
+    }
+
+    .secondary {
+      background: rgba(255,255,255,0.02);
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .results {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      background: rgba(10, 19, 28, 0.7);
+      border-radius: 16px;
+      padding: 16px 18px;
+    }
+
+    .card h4 {
+      margin: 0 0 8px;
+      font-size: 1.08rem;
+      color: var(--cyan);
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .tag {
+      background: rgba(72, 224, 206, 0.1);
+      border: 1px solid rgba(72,224,206,0.35);
+      color: var(--cyan);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 0.74rem;
+    }
+
+    .tag.gold {
+      background: rgba(244,215,125,0.08);
+      border-color: rgba(244,215,125,0.35);
+      color: var(--gold);
+    }
+
+    .tag.red {
+      background: rgba(255,125,125,0.08);
+      border-color: rgba(255,125,125,0.35);
+      color: var(--red);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 10px 16px;
+      margin-top: 12px;
+    }
+
+    .grid small {
+      display: block;
+      color: var(--muted);
+      margin-bottom: 5px;
+    }
+
+    .empty {
+      padding: 26px 16px;
+      color: var(--muted);
+      text-align: center;
+      border: 1px dashed var(--line);
+      border-radius: 16px;
+      background: rgba(8, 19, 28, 0.5);
+    }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      .wrap { padding-top: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">⌕</div>
+        <div>
+          <h2>صيّاد الفرص</h2>
+        </div>
+      </div>
+      <div id="healthStatus" class="status">جارٍ التحقق من الخدمة...</div>
+    </header>
+
+    <section id="login" class="panel">
+      <h3>دخول المالك</h3>
+      <p class="muted">استخدم رمز الدخول الذي ضبطته في متغيرات البيئة في Vercel.</p>
+
+      <form id="loginForm">
+        <div class="field">
+          <label for="ownerCode">رمز الدخول</label>
+          <input id="ownerCode" type="password" placeholder="أدخل رمز المالك" />
+        </div>
+        <div class="field">
+          <button class="primary" type="submit">تسجيل الدخول</button>
+        </div>
+      </form>
+    </section>
+
+    <section id="app" class="hidden">
+      <div class="layout">
+        <aside class="panel">
+          <h3>مدخل المهارات</h3>
+          <div class="field">
+            <label for="skillsInput">مهاراتك</label>
+            <textarea id="skillsInput">الكتابة بالعربية، اختراع الألعاب، تصميم الأوفرلاي للبث المباشر، تصميم المواقع والإعلانات، بناء نسخة ذكاء اصطناعي بسيطة للمحادثة</textarea>
+          </div>
+
+          <div class="field">
+            <label for="goalInput">الهدف</label>
+            <textarea id="goalInput">أعطني أفضل 5 فرص سريعة الدخل، مع خطة أول يوم.</textarea>
+          </div>
+
+          <div class="field">
+            <button id="generateBtn" class="primary" type="button">إنشاء فرص الدخل</button>
+          </div>
+        </aside>
+
+        <section class="panel results">
+          <div class="row" style="justify-content:space-between;align-items:center;">
+            <h3 style="margin:0;">فرص الدخل المقترحة</h3>
+            <button id="logoutBtn" class="secondary" type="button">تسجيل الخروج</button>
+          </div>
+
+          <div id="resultArea" class="empty">سيظهر هنا التحليل والفرص المقترحة فور الضغط على الزر.</div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const healthStatus = document.getElementById('healthStatus');
+    const loginSection = document.getElementById('login');
+    const appSection = document.getElementById('app');
+    const resultArea = document.getElementById('resultArea');
+    const loginForm = document.getElementById('loginForm');
+    const generateBtn = document.getElementById('generateBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    function setHealth(statusText, ok = true) {
+      healthStatus.textContent = statusText;
+      healthStatus.classList.toggle('ok', ok);
+      healthStatus.classList.toggle('bad', !ok);
+    }
+
+    async function checkHealth() {
+      try {
+        const res = await fetch('/api/health', { credentials: 'same-origin' });
+        const data = await res.json();
+        if (res.ok) {
+          setHealth('الخدمة تعمل بشكل طبيعي', true);
+        } else {
+          setHealth(data?.error || 'الخدمة غير متاحة', false);
+        }
+      } catch (err) {
+        setHealth('تعذر الاتصال بالخدمة', false);
+      }
+    }
+
+    function showApp() {
+      loginSection.classList.add('hidden');
+      appSection.classList.remove('hidden');
+      checkHealth();
+    }
+
+    function showLogin() {
+      appSection.classList.add('hidden');
+      loginSection.classList.remove('hidden');
+      setHealth('يرجى تسجيل الدخول أولاً', false);
+    }
+
+    async function loginOwner(event) {
+      event.preventDefault();
+      const code = document.getElementById('ownerCode').value.trim();
+      if (!code) {
+        setHealth('أدخل رمز الدخول أولاً', false);
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/auth', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ code })
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          setHealth(data?.error || 'فشل تسجيل الدخول', false);
+          return;
+        }
+
+        showApp();
+      } catch (err) {
+        setHealth('تعذر تسجيل الدخول', false);
+      }
+    }
+
+    function renderIdeas(items) {
+      if (!Array.isArray(items) || !items.length) {
+        resultArea.innerHTML = '<div class="empty">لم يتم إرجاع نتائج فعليّة. جرّب تغيّر مهاراتك أو حاول مرة أخرى.</div>';
+        return;
+      }
+
+      resultArea.innerHTML = items.map((item, index) => {
+        const evidence = item.evidence || {};
+        const confidence = item.confidence || 'محتمل';
+        const confidenceClass = confidence.includes('مؤكد') ? 'tag' : confidence.includes('ضعيف') ? 'tag red' : 'tag gold';
+
+        return `
+          <article class="card">
+            <div class="meta">
+              <span class="tag">#${index + 1}</span>
+              <span class="${confidenceClass}">${confidence}</span>
+            </div>
+            <h4>${item.title || 'فرصة جديدة'}</h4>
+
+            <p class="muted">${item.idea || 'لا توجد فكرة مفصلة.'}</p>
+
+            <div class="grid">
+              <div>
+                <small>المنصة</small>
+                <strong>${item.platform || 'غير محدد'}</strong>
+              </div>
+              <div>
+                <small>السعر</small>
+                <strong>${item.price || 'غير محدد'}</strong>
+              </div>
+              <div>
+                <small>الضمان</small>
+                <strong>${item.guarantee || 'لا يوجد ضمان'}</strong>
+              </div>
+              <div>
+                <small>المصدر</small>
+                <strong>${evidence.source || 'لم يتم التحقق من مصدر'}</strong>
+              </div>
+            </div>
+
+            <div style="margin-top:14px;">
+              <div><small style="color:var(--muted);">الدليل</small></div>
+              <p class="muted" style="margin-top:8px;">${evidence.summary || 'لا يوجد دليل موثوق.'}</p>
+            </div>
+
+            <div style="margin-top:14px;">
+              <div><small style="color:var(--muted);">أول 24 ساعة</small></div>
+              <p class="muted" style="margin-top:8px;">${item.first_24h || 'لم يتم تحديد الخطة'}</p>
+            </div>
+
+            <div style="margin-top:14px;">
+              <div><small style="color:var(--muted);">المخاطر</small></div>
+              <p class="muted" style="margin-top:8px;">${item.risk || 'لا توجد مخاطر محددة'}</p>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    async function generateIdeas() {
+      const skills = document.getElementById('skillsInput').value.trim();
+      const goal = document.getElementById('goalInput').value.trim();
+
+      resultArea.innerHTML = '<div class="empty">جارٍ تحليل المهارات والفرص...</div>';
+
+      try {
+        const res = await fetch('/api/ideas', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ skills, goal })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          resultArea.innerHTML = `<div class="empty">${data?.error || 'تعذر إنشاء الفرص'}</div>`;
+          setHealth(data?.error || 'فشل إنشاء الفرص', false);
+          return;
+        }
+
+        renderIdeas(data.reply || []);
+        setHealth('تم إنشاء الفرص بنجاح', true);
+      } catch (err) {
+        resultArea.innerHTML = '<div class="empty">حدث خطأ أثناء الاتصال بالخادم. حاول مرة أخرى.</div>';
+        setHealth('تعذر إنشاء الفرص', false);
+      }
+    }
+
+    async function logout() {
+      try {
+        await fetch('/api/auth?logout=1', { method: 'POST', credentials: 'same-origin' });
+      } catch (err) {
+        // ignore
+      }
+      document.cookie = 'sayyad_owner=; Max-Age=0; path=/; SameSite=Lax';
+      showLogin();
+    }
+
+    loginForm.addEventListener('submit', loginOwner);
+    generateBtn.addEventListener('click', generateIdeas);
+    logoutBtn.addEventListener('click', logout);
+
+    checkHealth();
+  </script>
+</body>
+</html>
