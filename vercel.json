@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "functions": {
+    "api/*.js": {
+      "maxDuration": 60
+    }
+  },
+  "crons": [
+    {
+      "path": "/api/health?task=scheduled-check",
+      "schedule": "0 6 * * *"
+    }
+  ]
+}
