@@ -2,39 +2,99 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#081722"><title>خَيْط — لعبة تربط العقول</title>
+<meta name="theme-color" content="#07131e"><title>اترك أثر | لعبة العقل والحدس</title>
 <style>
-:root{color-scheme:dark;--bg:#07131e;--panel:#102431;--line:#244454;--mint:#5ce0d2;--violet:#9b8cff;--ink:#f3f7fa;--muted:#a8bdc8}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 15% 0%,#123b49 0,transparent 42%),var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh;padding:22px}
-main{max-width:760px;margin:auto}.top{display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{font-size:34px;font-weight:900;letter-spacing:2px;background:linear-gradient(90deg,var(--mint),var(--violet));color:transparent;background-clip:text}.pill{border:1px solid var(--line);border-radius:99px;padding:8px 12px;color:var(--muted);font-size:13px}
-.hero{padding:32px 0 22px}.hero h1{font-size:clamp(28px,6vw,48px);line-height:1.2;margin:8px 0}.hero p{color:var(--muted);line-height:1.9;max-width:600px}.panel{background:linear-gradient(145deg,#122a38,#0c1d29);border:1px solid var(--line);border-radius:24px;padding:22px;margin:16px 0;box-shadow:0 18px 55px #0004}.progress{display:flex;gap:7px;margin:14px 0 22px}.progress i{height:6px;border-radius:8px;background:#29404d;flex:1}.progress i.on{background:linear-gradient(90deg,var(--mint),var(--violet))}
-.kicker{color:var(--mint);font-size:13px;font-weight:700}.story{color:var(--muted);line-height:1.8}.question{font-size:21px;font-weight:800;margin:22px 0 14px}.choices{display:grid;gap:10px}.choice{background:#0b1b27;color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:15px;text-align:right;font-size:17px;cursor:pointer;transition:.15s}.choice:hover{border-color:var(--mint);transform:translateY(-1px)}.choice:disabled{cursor:default;transform:none}.choice.good{border-color:#48c99a;background:#10392f}.choice.bad{border-color:#d87987;background:#3b2029}.feedback{padding:15px;border-radius:14px;background:#0a1a25;line-height:1.8;margin-top:15px}.btn{border:0;border-radius:14px;padding:15px 20px;font-size:17px;font-weight:800;color:#07151d;background:linear-gradient(100deg,var(--mint),var(--violet));cursor:pointer;width:100%;margin-top:15px}.btn:disabled{opacity:.45;cursor:not-allowed}.meta{display:flex;justify-content:space-between;color:var(--muted);font-size:13px;margin-top:18px}.hide{display:none}.result{text-align:center;padding:24px}.score{font-size:56px;font-weight:900;color:var(--mint)}.small{font-size:13px;color:var(--muted);line-height:1.8}footer{text-align:center;color:#718b98;font-size:12px;padding:20px}
+:root{color-scheme:dark;--bg:#07131e;--panel:#102431;--line:#294858;--mint:#65ead9;--violet:#9d91ff;--ink:#f4f8fa;--muted:#abc0ca;--gold:#f1c879}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;padding:18px;background:radial-gradient(ellipse at 50% -15%,#174958 0,transparent 48%),linear-gradient(160deg,#07131e,#091a26 65%,#10182b);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:820px;margin:auto}.top{display:flex;align-items:center;justify-content:space-between;gap:10px}.brand{font-size:clamp(27px,6vw,39px);font-weight:950;letter-spacing:1px;background:linear-gradient(90deg,var(--mint),var(--violet));color:transparent;background-clip:text}.tag{border:1px solid var(--line);border-radius:30px;padding:8px 12px;color:var(--muted);font-size:12px}
+.intro{padding:28px 0 14px}.eyebrow{color:var(--mint);font-size:13px;font-weight:800;letter-spacing:1px}.intro h1{font-size:clamp(30px,7vw,52px);line-height:1.15;margin:10px 0}.intro p,.muted{color:var(--muted);line-height:1.9}
+.panel{border:1px solid var(--line);border-radius:25px;padding:20px;margin:15px 0;background:linear-gradient(145deg,#122b39ed,#0b1d2aed);box-shadow:0 18px 60px #0005}
+.robot-zone{display:flex;align-items:center;gap:18px;min-height:190px;padding:15px;border-radius:20px;background:radial-gradient(ellipse at 30% 45%,#174354,#0a1c28 70%);border:1px solid #2a5362}
+.robot{width:132px;min-width:112px;position:relative;animation:float 3s ease-in-out infinite;filter:drop-shadow(0 12px 20px #0008)}
+.robot svg{width:100%;height:auto;overflow:visible}.eye{transform-box:fill-box;transform-origin:center;animation:blink 4.7s infinite}.eye.right{animation-delay:.15s}.pupil{animation:look 7s ease-in-out infinite}.mouth{animation:talk 2.7s ease-in-out infinite}
+@keyframes blink{0%,43%,47%,100%{transform:scaleY(1)}45%{transform:scaleY(.08)}}@keyframes float{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-8px) rotate(1deg)}}@keyframes look{0%,100%{transform:translateX(0)}30%{transform:translateX(3px)}65%{transform:translateX(-3px)}}@keyframes talk{0%,100%{transform:scaleY(.8)}50%{transform:scaleY(1.35)}}
+.robot-copy{flex:1}.robot-name{color:var(--mint);font-weight:900;font-size:18px}.bubble{margin-top:8px;padding:12px 14px;border-radius:15px 15px 4px 15px;background:#142f3d;border:1px solid #315567;color:#e5f3f5;line-height:1.8;min-height:54px}.robot-status{font-size:11px;color:#86a7b4;margin-top:8px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:15px 0}.stat{background:#0a1c28;border:1px solid var(--line);border-radius:15px;padding:12px;text-align:center}.stat b{display:block;font-size:22px;color:var(--mint)}.stat span{font-size:11px;color:var(--muted)}
+.progress{display:flex;gap:5px;margin:14px 0}.progress i{height:5px;flex:1;background:#263d4a;border-radius:9px}.progress i.on{background:linear-gradient(90deg,var(--mint),var(--violet))}
+.levelrow{display:flex;justify-content:space-between;align-items:center;gap:10px}.level{font-size:13px;color:var(--gold);font-weight:800}.story{color:var(--muted);line-height:1.8;margin:12px 0}.question{font-size:clamp(19px,4vw,24px);font-weight:850;line-height:1.7;margin:18px 0}.choices{display:grid;gap:10px}.choice{background:#091b27;color:var(--ink);border:1px solid #294858;border-radius:15px;padding:15px;text-align:right;font:inherit;font-size:16px;cursor:pointer;transition:.16s}.choice:hover{border-color:var(--mint);transform:translateY(-1px)}.choice:disabled{cursor:default;transform:none}.choice.good{border-color:#4ad1a2;background:#10392f}.choice.bad{border-color:#df7886;background:#3b2029}
+.feedback{padding:15px;border-radius:15px;background:#091b27;line-height:1.9;margin-top:14px;border:1px solid var(--line)}.btn{width:100%;padding:15px 18px;margin-top:14px;border:0;border-radius:15px;background:linear-gradient(100deg,var(--mint),var(--violet));color:#07151d;font:inherit;font-weight:900;font-size:17px;cursor:pointer}.btn:disabled{opacity:.45}.hide{display:none!important}.small{font-size:12px;color:var(--muted);line-height:1.9}.footer{text-align:center;color:#718d9a;font-size:12px;padding:20px}
+@media(max-width:480px){body{padding:12px}.panel{padding:15px}.robot-zone{gap:8px;padding:10px}.robot{width:108px;min-width:96px}.stats{gap:6px}.stat{padding:9px 4px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
 </style></head>
 <body><main>
-<header class="top"><div class="brand">خَيْط</div><div class="pill">لعبة ذكاء وتواصل</div></header>
-<section class="hero"><div class="kicker">كل عقل يرى جزءًا من الصورة</div><h1>وحين نتواصل،<br>نكشف الحقيقة.</h1><p>اختبر منطقك وذاكرتك وطريقة تواصلك. كل بوابة تكشف جانبًا جديدًا من طريقة تفكيرك. لا حظ ولا شراء للفوز؛ فقط انتباه وفضول.</p></section>
-<section class="panel" id="game">
-<div class="top"><strong id="stageTitle">البوابة الأولى</strong><span class="pill" id="counter">1 / 3</span></div>
-<div class="progress"><i class="on"></i><i></i><i></i></div>
-<p class="story" id="story"></p><div class="question" id="question"></div><div class="choices" id="choices"></div>
-<div class="feedback hide" id="feedback" aria-live="polite"></div><button class="btn hide" id="next">البوابة التالية</button>
-<div class="meta"><span>نقاطك: <b id="score">0</b></span><span>تجربة قصيرة • 3 تحديات</span></div>
+<header class="top"><div class="brand">اترك أثر</div><div class="tag">لعبة لا تنتهي • العقل هو المفتاح</div></header>
+<section class="intro"><div class="eyebrow">كل إجابة تترك علامة</div><h1>لن تلعب لتفوز فقط.<br>ستترك أثرًا.</h1><p>رحلة ألغاز تتصاعد مع كل مستوى. راقب، اربط، شكّ، وتعاون مع «أثَر» — رفيقك الآلي الذي يراقب تقدمك ويتفاعل مع قراراتك.</p></section>
+<section class="robot-zone">
+<div class="robot" aria-label="الروبوت أثر يتحرك ويرمش">
+<svg viewBox="0 0 180 190" role="img" aria-label="روبوت ثلاثي الأبعاد مرسوم">
+<defs><linearGradient id="shell" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#e9ffff"/><stop offset=".45" stop-color="#8bbac6"/><stop offset="1" stop-color="#3e7184"/></linearGradient><linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#102f43"/><stop offset="1" stop-color="#07121e"/></linearGradient><linearGradient id="glow" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#73ffe5"/><stop offset="1" stop-color="#9386ff"/></linearGradient></defs>
+<ellipse cx="90" cy="178" rx="53" ry="8" fill="#0008"/>
+<path d="M90 16V29" stroke="#a7d6df" stroke-width="6" stroke-linecap="round"/><circle cx="90" cy="12" r="7" fill="url(#glow)"/>
+<rect x="34" y="32" width="112" height="103" rx="34" fill="url(#shell)" stroke="#d7ffff" stroke-width="3"/>
+<rect x="43" y="43" width="94" height="79" rx="27" fill="url(#glass)" stroke="#477789" stroke-width="2"/>
+<g class="eye"><ellipse cx="69" cy="78" rx="11" ry="15" fill="#71f9e5"/><ellipse class="pupil" cx="72" cy="78" rx="4" ry="8" fill="#eaffff"/></g>
+<g class="eye right"><ellipse cx="111" cy="78" rx="11" ry="15" fill="#71f9e5"/><ellipse class="pupil" cx="114" cy="78" rx="4" ry="8" fill="#eaffff"/></g>
+<path class="mouth" d="M76 103 Q90 112 104 103" fill="none" stroke="#a6b5ff" stroke-width="4" stroke-linecap="round"/>
+<path d="M34 73H23Q15 73 15 84V101Q15 111 27 111H35M145 73H157Q165 73 165 84V101Q165 111 153 111H145" fill="none" stroke="#80aeba" stroke-width="9" stroke-linecap="round"/>
+<rect x="51" y="135" width="78" height="35" rx="16" fill="url(#shell)" stroke="#d7ffff" stroke-width="2"/><circle cx="90" cy="152" r="9" fill="url(#glow)"/>
+</svg></div>
+<div class="robot-copy"><div class="robot-name">أثَر <span style="color:#8caab6;font-size:12px">• رفيقك الآلي</span></div><div class="bubble" id="robotLine" aria-live="polite">أنا أثَر. لا تثق بأول إجابة تخطر في بالك… اختبرها.</div><div class="robot-status">● متصل بعالم اللعبة المحلي</div></div>
 </section>
-<section class="panel result hide" id="result"><div class="kicker">انتهت الرحلة</div><h2>أحسنت الوصول للنهاية</h2><div class="score" id="finalScore">0 / 3</div><p class="story" id="resultText"></p><button class="btn" id="restart">ابدأ من جديد</button></section>
-<section class="panel"><div class="kicker">فلسفة خَيْط</div><h2>اللعب الذي يجمعنا</h2><p class="story">ألغاز منطقية، اختيارات إنسانية، وتحديات ذاكرة. صُممت الفكرة لتشجع التفكير والتعاون دون ضغط يومي أو آليات إدمانية.</p><p class="small">هذا إصدار تجريبي فردي يعمل داخل المتصفح. لا يحتاج حسابًا أو مفتاح API، ولا يرسل إجاباتك إلى خادم.</p></section>
-<footer>خَيْط © تجربة أولية مستقلة</footer>
+<div class="stats"><div class="stat"><b id="levelStat">1</b><span>المستوى الحالي</span></div><div class="stat"><b id="scoreStat">0</b><span>الأثر المكتسب</span></div><div class="stat"><b id="streakStat">0</b><span>إجابات متتالية</span></div></div>
+<section class="panel" id="game">
+<div class="levelrow"><strong id="stageTitle">بوابة البداية</strong><span class="level" id="levelLabel">المستوى 1 • مبتدئ</span></div>
+<div class="progress" id="progress"><i class="on"></i><i></i><i></i><i></i><i></i></div>
+<p class="story" id="story"></p><div class="question" id="question"></div><div class="choices" id="choices"></div>
+<div class="feedback hide" id="feedback" aria-live="polite"></div><button class="btn hide" id="next">تابع الرحلة</button>
+<p class="small">كل مستوى جديد أصعب من السابق. لا توجد نهاية ثابتة؛ تتولد تحديات جديدة كلما تقدمت.</p>
+</section>
+<section class="panel"><div class="eyebrow">فكرة اللعبة</div><h2>ذكاء. حدس. أثر.</h2><p class="muted">تتنوع التحديات بين الأنماط العددية، المنطق، الملاحظة، الذاكرة، وفهم المواقف الإنسانية. تزداد الصعوبة تدريجيًا، وتتغير الألغاز باستمرار.</p><p class="small">هذا إصدار أولي فردي يعمل داخل المتصفح دون API أو حساب. يحفظ المستوى والنقاط على هذا الجهاز فقط. الروبوت مرسوم ومتحرك عبر الرسوم والأنيميشن، وليس شخصية ثلاثية الأبعاد أو متصلًا بمحادثة حية.</p></section>
+<footer class="footer">اترك أثر © — فكّر بعمق، واترك أثرًا طيبًا.</footer>
 </main>
 <script>
-const levels=[
-{title:"البوابة الأولى • المنطق",story:"تضيء البوابة كلما اكتشفت القاعدة. راقب الفروق بين الأرقام.",q:"ما الرقم التالي في السلسلة: 2، 5، 10، 17، 26، ؟",a:["32","35","37","39"],correct:2,why:"الفروق هي 3، 5، 7، 9؛ الفرق التالي 11، إذن 26 + 11 = 37."},
-{title:"البوابة الثانية • التواصل",story:"صديقك يخبرك أنه يشعر بالفشل بعد يوم صعب. اختيارك يحدد هل سيكمل الحديث أم ينغلق.",q:"أي رد يفتح مساحة حقيقية للحوار؟",a:["لا تكبر الموضوع.","ما الذي حدث؟ أنا أسمعك، ونفكر سويًا.","كان عليك أن تنتبه.","انسَ الأمر فورًا."],correct:1,why:"السؤال المفتوح والاستماع دون حكم يخلقان تواصلًا حقيقيًا، ثم يأتي التفكير المشترك."},
-{title:"البوابة الثالثة • الذاكرة",story:"احفظ ترتيب الرموز: نجمة، مفتاح، قمر، مفتاح، نجمة. ثم أجب.",q:"ما الرمز الموجود في المنتصف؟",a:["نجمة","مفتاح","قمر","لا يمكن معرفته"],correct:2,why:"العنصر الثالث في ترتيب من خمسة رموز هو القمر."}
-];
-let level=0,score=0,answered=false;
 const $=id=>document.getElementById(id);
-function render(){const x=levels[level];answered=false;$("stageTitle").textContent=x.title;$("counter").textContent=(level+1)+" / 3";$("story").textContent=x.story;$("question").textContent=x.q;$("choices").innerHTML="";$("feedback").classList.add("hide");$("next").classList.add("hide");$("score").textContent=score;document.querySelectorAll(".progress i").forEach((e,i)=>e.classList.toggle("on",i<=level));x.a.forEach((v,i)=>{const b=document.createElement("button");b.className="choice";b.textContent=["أ","ب","ج","د"][i]+" — "+v;b.onclick=()=>answer(i);$("choices").appendChild(b)});}
-function answer(i){if(answered)return;answered=true;const x=levels[level],ok=i===x.correct;if(ok)score++;[...$("choices").children].forEach((b,n)=>{b.disabled=true;if(n===x.correct)b.classList.add("good");else if(n===i)b.classList.add("bad")});$("score").textContent=score;$("feedback").classList.remove("hide");$("feedback").textContent=(ok?"إجابة صحيحة. ":"ليست الإجابة الصحيحة. ")+x.why;$("next").classList.remove("hide");$("next").textContent=level===2?"اعرض نتيجتي":"افتح البوابة التالية";}
-$("next").onclick=()=>{if(level<2){level++;render()}else{$("game").classList.add("hide");$("result").classList.remove("hide");$("finalScore").textContent=score+" / 3";$("resultText").textContent=score===3?"دقة ممتازة. حافظ على فضولك وشارك اللغز مع شخص آخر.":score===2?"أداء جيد. راجع التفسير وجرب مرة أخرى بعقلية مختلفة.":"كل محاولة تدريب. اقرأ التفسيرات وأعد الرحلة."}};
-$("restart").onclick=()=>{level=0;score=0;$("result").classList.add("hide");$("game").classList.remove("hide");render()};
-render();
+const safeLoad=()=>{try{return JSON.parse(localStorage.getItem("athar-progress")||"{}")}catch{return {}}};
+let saved=safeLoad(),level=Math.max(1,Number(saved.level)||1),score=Math.max(0,Number(saved.score)||0),streak=Math.max(0,Number(saved.streak)||0),answered=false,current=null;
+const names=["مبتدئ","ملاحظ","محلل","استراتيجي","عبقري الألغاز","عقل استثنائي"];
+function rank(n){return names[Math.min(names.length-1,Math.floor((n-1)/5))]}
+function persist(){try{localStorage.setItem("athar-progress",JSON.stringify({level,score,streak}))}catch{}}
+function rnd(n){return Math.floor(Math.random()*n)}
+function makePuzzle(){
+ const tier=Math.min(12,Math.floor((level-1)/3)),kind=(level-1)%4;
+ if(kind===0){
+  const start=2+rnd(8),step=2+rnd(3)+tier,seq=[start];
+  for(let i=1;i<5;i++)seq.push(seq[i-1]+step+(i-1)*Math.max(1,Math.floor(tier/2)));
+  const ans=seq[4]+step+4*Math.max(1,Math.floor(tier/2)),gap=Math.max(2,Math.floor(step/2));
+  return {title:"مختبر الأنماط",story:"أثَر يرصد تسلسلًا رقميًا. القاعدة تتغير في كل مرة؛ لا تتسرع.",q:"اكتشف الرقم التالي: "+seq.join("، ")+"، ؟",a:[ans+gap,ans,ans-gap,ans+gap*2].sort(()=>Math.random()-.5).map(String),answer:String(ans),why:"الفروق تبدأ بـ "+step+" ثم تزداد تدريجيًا. احسب الفارق التالي وأضفه إلى آخر رقم."};
+ }
+ if(kind===1){
+  const x=3+rnd(8)+tier,y=2+rnd(7)+tier,z=1+rnd(6)+tier;
+  return {title:"غرفة الاستنتاج",story:"ثلاثة صناديق، واحد فقط يحمل الرمز. اقرأ القرائن بدقة.",q:"إذا كان الصندوق الأحمر ليس الهدف، والأزرق يحمل رقمًا أكبر من الأحمر، والأخضر أصغر من الأحمر؛ فأي ترتيب صحيح للأرقام (أحمر، أزرق، أخضر)؟",a:[""+x+"، "+(x+z)+"، "+(x-y),"3، 2، 1","5، 8، 9","7، 4، 2"],answer:null,why:"ابحث عن ترتيب يحقق: الأزرق أكبر من الأحمر، والأخضر أصغر من الأحمر. هذه الغرفة تختبر قراءة الشروط لا الحساب." ,custom:true};
+ }
+ if(kind===2){
+  const a=2+rnd(7),b=2+rnd(7),c=2+rnd(7);
+  const total=a+b+c;
+  return {title:"ميزان العقل",story:"لا تحتاج إلى سرعة؛ تحتاج إلى تقسيم المسألة إلى أجزاء.",q:"ثلاثة مفاتيح تفتح ثلاثة أقفال. جرّبت مفتاحين مختلفين وبقي قفل واحد. كم محاولة إضافية تحتاج كحد أقصى إذا كان كل مفتاح يفتح قفلًا واحدًا؟",a:["0","1","2","3"],answer:"1",why:"بعد معرفة تطابق مفتاحين وقفلين، يبقى مفتاح واحد وقفل واحد. محاولة واحدة تكفي."};
+ }
+ const n=4+rnd(5)+tier;
+ return {title:"مرآة الذاكرة",story:"أثَر يعرض شفرة قصيرة. احفظها ثم استخرج العنصر المطلوب.",q:"شفرة الرموز: ◆ ● ▲ ■ ★. ما الرمز الثاني من اليمين؟",a:["◆","●","▲","■"],answer:"■",why:"عند القراءة من اليمين: ★ ثم ■. إذن الرمز الثاني من اليمين هو المربع."};
+}
+function chooseAnswer(p){if(p.custom){p.answer=p.a[0];p.why="هذه المرحلة تقيس فحص الشروط. قارن كل اختيار: يجب أن يكون الأزرق أكبر من الأحمر، والأخضر أصغر من الأحمر. لاحظ أن الاختيارات الأخرى لا تحقق الشرطين معًا."}}
+function render(){
+ answered=false;current=makePuzzle();chooseAnswer(current);
+ $("stageTitle").textContent=current.title;$("levelLabel").textContent="المستوى "+level+" • "+rank(level);$("levelStat").textContent=level;$("scoreStat").textContent=score;$("streakStat").textContent=streak;
+ $("story").textContent=current.story;$("question").textContent=current.q;$("choices").innerHTML="";$("feedback").classList.add("hide");$("next").classList.add("hide");
+ const seg=level%5||5;$("progress").innerHTML=Array.from({length:5},(_,i)=>'<i class="'+(i<seg?"on":"")+'"></i>').join("");
+ current.a.forEach(v=>{const b=document.createElement("button");b.className="choice";b.textContent=v;b.onclick=()=>answer(v);$("choices").appendChild(b)});
+}
+function answer(v){
+ if(answered)return;answered=true;const ok=String(v)===String(current.answer);if(ok){score+=10+Math.min(40,level*2);streak++}else{streak=0}
+ [...$("choices").children].forEach(b=>{b.disabled=true;if(b.textContent===String(current.answer))b.classList.add("good");else if(b.textContent===String(v))b.classList.add("bad")});
+ $("scoreStat").textContent=score;$("streakStat").textContent=streak;
+ $("feedback").classList.remove("hide");$("feedback").innerHTML=(ok?"<b>أحسنت. لقد تركت أثرًا.</b><br>":"<b>لم تصب هذه المرة.</b><br>")+"<span>"+current.why+"</span>";
+ $("robotLine").textContent=ok?["كنت أعرف أنك ستلاحظ ذلك!","تحليل ممتاز. لنرفع مستوى التحدي.","إجابة ذكية… لكن القادم أصعب."][rnd(3)]:["خطأ مفيد. العقل يتعلم من مراجعة الفكرة.","لا تستسلم لأول احتمال. جرّب من زاوية أخرى.","اقتربت. ركّز على القرائن في المرة القادمة."][rnd(3)];
+ $("next").classList.remove("hide");$("next").textContent="انتقل إلى المستوى "+(level+1);
+}
+$("next").onclick=()=>{level++;persist();render();$("robotLine").textContent="مستوى جديد. هل أنت مستعد لتحدٍ أعمق؟";window.scrollTo({top:$("game").offsetTop-10,behavior:"smooth"})};
+render();$("robotLine").textContent=saved.level?"عدت إلينا! أتذكر تقدمك. لنرَ إن كان عقلك أسرع اليوم.":"أنا أثَر. لن أقدم لك الحلول… سأساعدك على اكتشافها.";
 </script></body></html>
