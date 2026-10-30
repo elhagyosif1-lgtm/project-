@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#081722"><title>خَيْط — لعبة تربط العقول</title>
+<style>
+:root{color-scheme:dark;--bg:#07131e;--panel:#102431;--line:#244454;--mint:#5ce0d2;--violet:#9b8cff;--ink:#f3f7fa;--muted:#a8bdc8}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 15% 0%,#123b49 0,transparent 42%),var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh;padding:22px}
+main{max-width:760px;margin:auto}.top{display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{font-size:34px;font-weight:900;letter-spacing:2px;background:linear-gradient(90deg,var(--mint),var(--violet));color:transparent;background-clip:text}.pill{border:1px solid var(--line);border-radius:99px;padding:8px 12px;color:var(--muted);font-size:13px}
+.hero{padding:32px 0 22px}.hero h1{font-size:clamp(28px,6vw,48px);line-height:1.2;margin:8px 0}.hero p{color:var(--muted);line-height:1.9;max-width:600px}.panel{background:linear-gradient(145deg,#122a38,#0c1d29);border:1px solid var(--line);border-radius:24px;padding:22px;margin:16px 0;box-shadow:0 18px 55px #0004}.progress{display:flex;gap:7px;margin:14px 0 22px}.progress i{height:6px;border-radius:8px;background:#29404d;flex:1}.progress i.on{background:linear-gradient(90deg,var(--mint),var(--violet))}
+.kicker{color:var(--mint);font-size:13px;font-weight:700}.story{color:var(--muted);line-height:1.8}.question{font-size:21px;font-weight:800;margin:22px 0 14px}.choices{display:grid;gap:10px}.choice{background:#0b1b27;color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:15px;text-align:right;font-size:17px;cursor:pointer;transition:.15s}.choice:hover{border-color:var(--mint);transform:translateY(-1px)}.choice:disabled{cursor:default;transform:none}.choice.good{border-color:#48c99a;background:#10392f}.choice.bad{border-color:#d87987;background:#3b2029}.feedback{padding:15px;border-radius:14px;background:#0a1a25;line-height:1.8;margin-top:15px}.btn{border:0;border-radius:14px;padding:15px 20px;font-size:17px;font-weight:800;color:#07151d;background:linear-gradient(100deg,var(--mint),var(--violet));cursor:pointer;width:100%;margin-top:15px}.btn:disabled{opacity:.45;cursor:not-allowed}.meta{display:flex;justify-content:space-between;color:var(--muted);font-size:13px;margin-top:18px}.hide{display:none}.result{text-align:center;padding:24px}.score{font-size:56px;font-weight:900;color:var(--mint)}.small{font-size:13px;color:var(--muted);line-height:1.8}footer{text-align:center;color:#718b98;font-size:12px;padding:20px}
+</style></head>
+<body><main>
+<header class="top"><div class="brand">خَيْط</div><div class="pill">لعبة ذكاء وتواصل</div></header>
+<section class="hero"><div class="kicker">كل عقل يرى جزءًا من الصورة</div><h1>وحين نتواصل،<br>نكشف الحقيقة.</h1><p>اختبر منطقك وذاكرتك وطريقة تواصلك. كل بوابة تكشف جانبًا جديدًا من طريقة تفكيرك. لا حظ ولا شراء للفوز؛ فقط انتباه وفضول.</p></section>
+<section class="panel" id="game">
+<div class="top"><strong id="stageTitle">البوابة الأولى</strong><span class="pill" id="counter">1 / 3</span></div>
+<div class="progress"><i class="on"></i><i></i><i></i></div>
+<p class="story" id="story"></p><div class="question" id="question"></div><div class="choices" id="choices"></div>
+<div class="feedback hide" id="feedback" aria-live="polite"></div><button class="btn hide" id="next">البوابة التالية</button>
+<div class="meta"><span>نقاطك: <b id="score">0</b></span><span>تجربة قصيرة • 3 تحديات</span></div>
+</section>
+<section class="panel result hide" id="result"><div class="kicker">انتهت الرحلة</div><h2>أحسنت الوصول للنهاية</h2><div class="score" id="finalScore">0 / 3</div><p class="story" id="resultText"></p><button class="btn" id="restart">ابدأ من جديد</button></section>
+<section class="panel"><div class="kicker">فلسفة خَيْط</div><h2>اللعب الذي يجمعنا</h2><p class="story">ألغاز منطقية، اختيارات إنسانية، وتحديات ذاكرة. صُممت الفكرة لتشجع التفكير والتعاون دون ضغط يومي أو آليات إدمانية.</p><p class="small">هذا إصدار تجريبي فردي يعمل داخل المتصفح. لا يحتاج حسابًا أو مفتاح API، ولا يرسل إجاباتك إلى خادم.</p></section>
+<footer>خَيْط © تجربة أولية مستقلة</footer>
+</main>
+<script>
+const levels=[
+{title:"البوابة الأولى • المنطق",story:"تضيء البوابة كلما اكتشفت القاعدة. راقب الفروق بين الأرقام.",q:"ما الرقم التالي في السلسلة: 2، 5، 10، 17، 26، ؟",a:["32","35","37","39"],correct:2,why:"الفروق هي 3، 5، 7، 9؛ الفرق التالي 11، إذن 26 + 11 = 37."},
+{title:"البوابة الثانية • التواصل",story:"صديقك يخبرك أنه يشعر بالفشل بعد يوم صعب. اختيارك يحدد هل سيكمل الحديث أم ينغلق.",q:"أي رد يفتح مساحة حقيقية للحوار؟",a:["لا تكبر الموضوع.","ما الذي حدث؟ أنا أسمعك، ونفكر سويًا.","كان عليك أن تنتبه.","انسَ الأمر فورًا."],correct:1,why:"السؤال المفتوح والاستماع دون حكم يخلقان تواصلًا حقيقيًا، ثم يأتي التفكير المشترك."},
+{title:"البوابة الثالثة • الذاكرة",story:"احفظ ترتيب الرموز: نجمة، مفتاح، قمر، مفتاح، نجمة. ثم أجب.",q:"ما الرمز الموجود في المنتصف؟",a:["نجمة","مفتاح","قمر","لا يمكن معرفته"],correct:2,why:"العنصر الثالث في ترتيب من خمسة رموز هو القمر."}
+];
+let level=0,score=0,answered=false;
+const $=id=>document.getElementById(id);
+function render(){const x=levels[level];answered=false;$("stageTitle").textContent=x.title;$("counter").textContent=(level+1)+" / 3";$("story").textContent=x.story;$("question").textContent=x.q;$("choices").innerHTML="";$("feedback").classList.add("hide");$("next").classList.add("hide");$("score").textContent=score;document.querySelectorAll(".progress i").forEach((e,i)=>e.classList.toggle("on",i<=level));x.a.forEach((v,i)=>{const b=document.createElement("button");b.className="choice";b.textContent=["أ","ب","ج","د"][i]+" — "+v;b.onclick=()=>answer(i);$("choices").appendChild(b)});}
+function answer(i){if(answered)return;answered=true;const x=levels[level],ok=i===x.correct;if(ok)score++;[...$("choices").children].forEach((b,n)=>{b.disabled=true;if(n===x.correct)b.classList.add("good");else if(n===i)b.classList.add("bad")});$("score").textContent=score;$("feedback").classList.remove("hide");$("feedback").textContent=(ok?"إجابة صحيحة. ":"ليست الإجابة الصحيحة. ")+x.why;$("next").classList.remove("hide");$("next").textContent=level===2?"اعرض نتيجتي":"افتح البوابة التالية";}
+$("next").onclick=()=>{if(level<2){level++;render()}else{$("game").classList.add("hide");$("result").classList.remove("hide");$("finalScore").textContent=score+" / 3";$("resultText").textContent=score===3?"دقة ممتازة. حافظ على فضولك وشارك اللغز مع شخص آخر.":score===2?"أداء جيد. راجع التفسير وجرب مرة أخرى بعقلية مختلفة.":"كل محاولة تدريب. اقرأ التفسيرات وأعد الرحلة."}};
+$("restart").onclick=()=>{level=0;score=0;$("result").classList.add("hide");$("game").classList.remove("hide");render()};
+render();
+</script></body></html>
