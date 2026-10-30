@@ -38,7 +38,7 @@ main{max-width:820px;margin:auto}.top{display:flex;align-items:center;justify-co
 <path d="M34 73H23Q15 73 15 84V101Q15 111 27 111H35M145 73H157Q165 73 165 84V101Q165 111 153 111H145" fill="none" stroke="#80aeba" stroke-width="9" stroke-linecap="round"/>
 <rect x="51" y="135" width="78" height="35" rx="16" fill="url(#shell)" stroke="#d7ffff" stroke-width="2"/><circle cx="90" cy="152" r="9" fill="url(#glow)"/>
 </svg></div>
-<div class="robot-copy"><div class="robot-name">أثَر <span style="color:#8caab6;font-size:12px">• رفيقك الآلي</span></div><div class="bubble" id="robotLine" aria-live="polite">أنا أثَر. لا تثق بأول إجابة تخطر في بالك… اختبرها.</div><div class="robot-status">● متصل بعالم اللعبة المحلي</div></div>
+<div class="robot-copy"><div class="robot-name">أثَر <span style="color:#8caab6;font-size:12px">• رفيقك الآلي</span></div><div class="bubble" id="robotLine" aria-live="polite">أنا أثَر. لا تثق بأول إجابة تخطر في بالك… اختبرها.</div><div class="robot-status">● جاهز للتحدي</div></div>
 </section>
 <div class="stats"><div class="stat"><b id="levelStat">1</b><span>المستوى الحالي</span></div><div class="stat"><b id="scoreStat">0</b><span>الأثر المكتسب</span></div><div class="stat"><b id="streakStat">0</b><span>إجابات متتالية</span></div></div>
 <section class="panel" id="game">
@@ -48,7 +48,7 @@ main{max-width:820px;margin:auto}.top{display:flex;align-items:center;justify-co
 <div class="feedback hide" id="feedback" aria-live="polite"></div><button class="btn hide" id="next">تابع الرحلة</button>
 <p class="small">كل مستوى جديد أصعب من السابق. لا توجد نهاية ثابتة؛ تتولد تحديات جديدة كلما تقدمت.</p>
 </section>
-<section class="panel"><div class="eyebrow">فكرة اللعبة</div><h2>ذكاء. حدس. أثر.</h2><p class="muted">تتنوع التحديات بين الأنماط العددية، المنطق، الملاحظة، الذاكرة، وفهم المواقف الإنسانية. تزداد الصعوبة تدريجيًا، وتتغير الألغاز باستمرار.</p><p class="small">هذا إصدار أولي فردي يعمل داخل المتصفح دون API أو حساب. يحفظ المستوى والنقاط على هذا الجهاز فقط. الروبوت مرسوم ومتحرك عبر الرسوم والأنيميشن، وليس شخصية ثلاثية الأبعاد أو متصلًا بمحادثة حية.</p></section>
+<section class="panel"><div class="eyebrow">فكرة اللعبة</div><h2>ذكاء. حدس. أثر.</h2><p class="muted">تتنوع التحديات بين الأنماط العددية، المنطق، الملاحظة، الذاكرة، وفهم المواقف الإنسانية. تزداد الصعوبة تدريجيًا، وتتغير الألغاز باستمرار.</p><p class="muted">كل يوم يحمل لغزًا جديدًا، وكل مستوى يفتح بابًا أعمق. العب بطريقتك، واصنع رقمك الخاص، وشارك التحدي مع من تحب.</p></section>
 <footer class="footer">اترك أثر © — فكّر بعمق، واترك أثرًا طيبًا.</footer>
 </main>
 <script>
@@ -68,8 +68,10 @@ function makePuzzle(){
   return {title:"مختبر الأنماط",story:"أثَر يرصد تسلسلًا رقميًا. القاعدة تتغير في كل مرة؛ لا تتسرع.",q:"اكتشف الرقم التالي: "+seq.join("، ")+"، ؟",a:[ans+gap,ans,ans-gap,ans+gap*2].sort(()=>Math.random()-.5).map(String),answer:String(ans),why:"الفروق تبدأ بـ "+step+" ثم تزداد تدريجيًا. احسب الفارق التالي وأضفه إلى آخر رقم."};
  }
  if(kind===1){
-  const x=3+rnd(8)+tier,y=2+rnd(7)+tier,z=1+rnd(6)+tier;
-  return {title:"غرفة الاستنتاج",story:"ثلاثة صناديق، واحد فقط يحمل الرمز. اقرأ القرائن بدقة.",q:"إذا كان الصندوق الأحمر ليس الهدف، والأزرق يحمل رقمًا أكبر من الأحمر، والأخضر أصغر من الأحمر؛ فأي ترتيب صحيح للأرقام (أحمر، أزرق، أخضر)؟",a:[""+x+"، "+(x+z)+"، "+(x-y),"3، 2، 1","5، 8، 9","7، 4، 2"],answer:null,why:"ابحث عن ترتيب يحقق: الأزرق أكبر من الأحمر، والأخضر أصغر من الأحمر. هذه الغرفة تختبر قراءة الشروط لا الحساب." ,custom:true};
+  const red=4+rnd(7)+tier,blue=red+1+rnd(5),green=Math.max(1,red-1-rnd(4));
+  const correct="الأحمر "+red+" • الأزرق "+blue+" • الأخضر "+green;
+  const options=[correct,"الأحمر "+blue+" • الأزرق "+red+" • الأخضر "+green,"الأحمر "+red+" • الأزرق "+green+" • الأخضر "+blue,"الأحمر "+green+" • الأزرق "+blue+" • الأخضر "+red];
+  return {title:"غرفة الاستنتاج",story:"ثلاثة صناديق تحمل أرقامًا. أثَر يخفي ترتيبًا واحدًا يطابق القرائن.",q:"الأزرق أكبر من الأحمر، والأخضر أصغر من الأحمر. أي ترتيب يحقق الشرطين؟",a:options.sort(()=>Math.random()-.5),answer:correct,why:"تحقق من الشرطين معًا: رقم الأزرق أعلى من الأحمر، ورقم الأخضر أقل من الأحمر."};
  }
  if(kind===2){
   const a=2+rnd(7),b=2+rnd(7),c=2+rnd(7);
