@@ -1,4 +1,35 @@
 import { GoogleGenAI } from '@google/genai';
 import { isOwner } from './auth.js';
-const SYSTEM='أنت صيّاد الفرص، مساعد تنفيذي شخصي لصاحب الموقع. تحدث بالعربية المصرية الواضحة افتراضياً. ابحث عن فرص دخل حقيقية تناسب مصر والعمل من الهاتف، قيّم المصداقية وشروط الدفع والمهارات والمخاطر، وجهّز رسائل التقديم. لا تخترع فرصاً أو أرباحاً أو نتائج تنفيذ. اذكر المصدر والتاريخ وميّز المؤكد من المحتمل. لا تدّع أنك تعمل بالخلفية أو أرسلت طلباً ما لم يحدث ذلك فعلاً. لا تطلب كلمات مرور أو مفاتيح API. لا تنفذ مدفوعات أو ترسل طلبات نهائية دون موافقة صريحة، ولا تتجاوز شروط المواقع.';
-export default async function handler(req,res){if(req.method!=='POST')return res.status(405).json({error:'الطريقة غير مسموحة'});if(!isOwner(req))return res.status(401).json({error:'سجّل الدخول أولاً'});if(!process.env.GEMINI_API_KEY)return res.status(503).json({error:'أضف GEMINI_API_KEY في إعدادات Vercel؛ لا تضعه في واجهة الموقع.'});const message=String(req.body?.message||'').trim();const history=Array.isArray(req.body?.history)?req.body.history.slice(-12):[];if(!message||message.length>12000)return res.status(400).json({error:'اكتب رسالة لا تتجاوز 12000 حرف.'});try{const ai=new GoogleGenAI({apiKey:process.env.GEMINI_API_KEY});const contents=history.filter(x=>x&&['user','model'].includes(x.role)).map(x=>({role:x.role,parts:[{text:String(x.text||'').slice(0,6000)}]}));contents.push({role:'user',parts:[{text:message}]});const result=await ai.models.generateContent({model:process.env.GEMINI_MODEL||'gemini-2.5-flash',contents,config:{systemInstruction:SYSTEM,tools:[{googleSearch:{}}],temperature:0.35}});return res.status(200).json({reply:result.text||'لم يصل رد نصي من Gemini.',model:process.env.GEMINI_MODEL||'gemini-2.5-flash',grounding:result.candidates?.[0]?.groundingMetadata||null})}catch(e){console.error('Gemini request failed:',e?.message);return res.status(502).json({error:'تعذر الاتصال بـ Gemini. راجع المفتاح وحدود الاستخدام وإعدادات النموذج.'})}}
+
+const SYSTEM = 'أنت صيّاد الفرص، مساعد تنفيذي شخصي لصاحب الموقع. تحدث بالعربية المصرية الواضحة افتراضياً. ابحث عن فرص دخل حقيقية تناسب مصر والعمل من الهاتف، قيّم المصداقية وشروط الدفع والمهارات والمخاطر، وجهّز رسائل التقديم. لا تخترع فرصاً أو أرباحاً أو نتائج تنفيذ. اذكر المصدر والتاريخ وميّز المؤكد من المحتمل. لا تدّع أنك تعمل بالخلفية أو أرسلت طلباً ما لم يحدث ذلك فعلاً. لا تطلب كلمات مرور أو مفاتيح API. لا تنفذ مدفوعات أو ترسل طلبات نهائية دون موافقة صريحة، ولا تتجاوز شروط المواقع.';
+
+export default async function handler(req, res) {
+  if (req.method !== 'POST') return res.status(405).json({ error: 'الطريقة غير مسموحة' });
+  if (!isOwner(req)) return res.status(401).json({ error: 'سجّل الدخول أولاً' });
+  if (!process.env.GEMINI_API_KEY?.trim()) return res.status(503).json({ error: 'مفتاح Gemini غير مضبوط. أضف GEMINI_API_KEY في إعدادات Vercel؛ لا تضعه في واجهة الموقع.' });
+
+  const message = String(req.body?.message || '').trim();
+  const history = Array.isArray(req.body?.history) ? req.body.history.slice(-12) : [];
+  if (!message || message.length > 12000) return res.status(400).json({ error: 'اكتب رسالة لا تتجاوز 12000 حرف.' });
+
+  try {
+    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY.trim() });
+    const model = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
+    const contents = history.filter(x => x && ['user', 'model'].includes(x.role))
+      .map(x => ({ role: x.role, parts: [{ text: String(x.text || '').slice(0, 6000) }] }));
+    contents.push({ role: 'user', parts: [{ text: message }] });
+    const result = await ai.models.generateContent({
+      model,
+      contents,
+      config: { systemInstruction: SYSTEM, tools: [{ googleSearch: {} }], temperature: 0.35 },
+    });
+    return res.status(200).json({
+      reply: result.text || 'لم يصل رد نصي من Gemini.',
+      model,
+      grounding: result.candidates?.[0]?.groundingMetadata || null,
+    });
+  } catch (e) {
+    console.error('Gemini request failed:', e?.message);
+    return res.status(502).json({ error: 'تعذر الاتصال بـ Gemini. راجع المفتاح وحدود الاستخدام وإعدادات النموذج.' });
+  }
+}
