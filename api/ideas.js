@@ -60,7 +60,6 @@ async function generate(prompt) {
         model,
         messages: [{ role: 'system', content: SYSTEM }, { role: 'user', content: prompt }],
         temperature: 0.4,
-        response_format: { type: 'json_object' },
       }),
     });
     const data = await response.json();
