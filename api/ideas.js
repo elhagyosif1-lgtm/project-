@@ -44,27 +44,56 @@ function parseIdeas(rawText) {
   }
 }
 
+async function generate(prompt) {
+  const key = process.env.GEMINI_API_KEY.trim();
+  if (key.startsWith('sk-or-')) {
+    const model = process.env.OPENROUTER_MODEL || 'openrouter/auto';
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${key}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://sayyad-gemini.vercel.app',
+        'X-Title': 'صيّاد الفرص',
+      },
+      body: JSON.stringify({
+        model,
+        messages: [{ role: 'system', content: SYSTEM }, { role: 'user', content: prompt }],
+        temperature: 0.4,
+        response_format: { type: 'json_object' },
+      }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data?.error?.message || `OpenRouter HTTP ${response.status}`);
+    return { text: data.choices?.[0]?.message?.content || '', model, grounding: null };
+  }
+
+  const ai = new GoogleGenAI({ apiKey: key });
+  const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+  const result = await ai.models.generateContent({
+    model,
+    contents: [{ role: 'user', parts: [{ text: prompt }] }],
+    config: { systemInstruction: SYSTEM, tools: [{ googleSearch: {} }], temperature: 0.4 },
+  });
+  return { text: result?.text || '', model, grounding: result?.candidates?.[0]?.groundingMetadata || null };
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'الطريقة غير مسموحة' });
   if (!isOwner(req)) return res.status(401).json({ error: 'سجّل الدخول أولاً' });
-  if (!process.env.GEMINI_API_KEY?.trim()) return res.status(503).json({ error: 'مفتاح Gemini غير مضبوط. أضف GEMINI_API_KEY في إعدادات Vercel.' });
+  if (!process.env.GEMINI_API_KEY?.trim()) return res.status(503).json({ error: 'مفتاح الذكاء الاصطناعي غير مضبوط في إعدادات Vercel.' });
 
   const skills = String(req.body?.skills || DEFAULT_SKILLS).trim().slice(0, 1500);
   const goal = String(req.body?.goal || 'أعطني أفضل 5 فرص سريعة الدخل، مع خطة أول يوم.').trim().slice(0, 1500);
   const prompt = `مهاراتي:\n${skills}\n\nهدفي:\n${goal}\n\nأعطني أفضل 5 فرص سريعة الدخل، مرتبة من الأسرع دخلاً إلى الأبطأ.`;
 
   try {
-    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY.trim() });
-    const model = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
-    const result = await ai.models.generateContent({
-      model,
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      config: { systemInstruction: SYSTEM, tools: [{ googleSearch: {} }], temperature: 0.4 },
-    });
-    const reply = parseIdeas(result?.text || '');
-    return res.status(200).json({ reply, model, grounding: result?.candidates?.[0]?.groundingMetadata || null });
+    const result = await generate(prompt);
+    const reply = parseIdeas(result.text);
+    if (!reply.length) return res.status(502).json({ error: 'وصل رد من النموذج لكن تعذر تحويله إلى قائمة فرص. أعد المحاولة.' });
+    return res.status(200).json({ reply, model: result.model, grounding: result.grounding });
   } catch (e) {
     console.error('Ideas request failed:', e?.message || e);
-    return res.status(502).json({ error: 'تعذر الاتصال بـ Gemini. راجع المفتاح وحدود الاستخدام وإعدادات النموذج.' });
+    return res.status(502).json({ error: 'تعذر الاتصال بمزوّد الذكاء الاصطناعي. تحقق من المفتاح والنموذج وحدود الاستخدام.' });
   }
 }
