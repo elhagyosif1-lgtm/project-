@@ -26,12 +26,7 @@ const SYSTEM = `أنت مساعد تخطيط دخل للمالك. اكتب با�
 
 function parseIdeas(rawText) {
   if (!rawText) return [];
-
-  const cleaned = String(rawText)
-    .replace(/```json/gi, '')
-    .replace(/```/g, '')
-    .trim();
-
+  const cleaned = String(rawText).replace(/```json/gi, '').replace(/```/g, '').trim();
   try {
     const parsed = JSON.parse(cleaned);
     if (Array.isArray(parsed)) return parsed;
@@ -43,9 +38,7 @@ function parseIdeas(rawText) {
       try {
         const parsed = JSON.parse(arrayMatch[0]);
         return Array.isArray(parsed) ? parsed : [];
-      } catch {
-        return [];
-      }
+      } catch { return []; }
     }
     return [];
   }
@@ -54,36 +47,24 @@ function parseIdeas(rawText) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'الطريقة غير مسموحة' });
   if (!isOwner(req)) return res.status(401).json({ error: 'سجّل الدخول أولاً' });
-  if (!process.env.GEMINI_API_KEY) return res.status(503).json({ error: 'أضف GEMINI_API_KEY في إعدادات Vercel.' });
+  if (!process.env.GEMINI_API_KEY?.trim()) return res.status(503).json({ error: 'مفتاح Gemini غير مضبوط. أضف GEMINI_API_KEY في إعدادات Vercel.' });
 
   const skills = String(req.body?.skills || DEFAULT_SKILLS).trim().slice(0, 1500);
   const goal = String(req.body?.goal || 'أعطني أفضل 5 فرص سريعة الدخل، مع خطة أول يوم.').trim().slice(0, 1500);
-
   const prompt = `مهاراتي:\n${skills}\n\nهدفي:\n${goal}\n\nأعطني أفضل 5 فرص سريعة الدخل، مرتبة من الأسرع دخلاً إلى الأبطأ.`;
 
   try {
-    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-    const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
-
+    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY.trim() });
+    const model = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
     const result = await ai.models.generateContent({
       model,
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      config: {
-        systemInstruction: SYSTEM,
-        tools: [{ googleSearch: {} }],
-        temperature: 0.4,
-      },
+      config: { systemInstruction: SYSTEM, tools: [{ googleSearch: {} }], temperature: 0.4 },
     });
-
     const reply = parseIdeas(result?.text || '');
-
-    return res.status(200).json({
-      reply,
-      model,
-      grounding: result?.candidates?.[0]?.groundingMetadata || null,
-    });
+    return res.status(200).json({ reply, model, grounding: result?.candidates?.[0]?.groundingMetadata || null });
   } catch (e) {
     console.error('Ideas request failed:', e?.message || e);
-    return res.status(502).json({ error: 'تعذر الاتصال بـ Gemini. راجع المفتاح وحدود الاستخدام.' });
+    return res.status(502).json({ error: 'تعذر الاتصال بـ Gemini. راجع المفتاح وحدود الاستخدام وإعدادات النموذج.' });
   }
 }
