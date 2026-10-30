@@ -1,98 +1,81 @@
-import { GoogleGenAI } from '@google/genai';
 import { isOwner } from './auth.js';
 
-const DEFAULT_SKILLS = 'الكتابة بالعربية، اختراع الألعاب، تصميم الأوفرلاي للبث المباشر، تصميم المواقع والإعلانات، بناء نسخة ذكاء اصطناعي بسيطة للمحادثة';
-
-const SYSTEM = `أنت مساعد تخطيط دخل للمالك. اكتب بالعربية المصرية الواضحة.
-مهمتك: اقترح أعمالاً صغيرة قابلة للتنفيذ من المهارات المذكورة، مرتبة من الأسرع دخلاً إلى الأبطأ.
-النتيجة يجب أن تكون JSON فقط، بصيغة مصفوفة من 5 عناصر، بدون Markdown، بدون شرح إضافي.
-كل عنصر يجب أن يكون كائن JSON يحتوي فقط على الحقول التالية:
-- title
-- idea
-- platform
-- price
-- guarantee
-- evidence
-- first_24h
-- risk
-- confidence
-
-حقل evidence نفسه كائن JSON به:
-- found
-- source
-- summary
-
-قاعدة صارمة: لا تخترع شركات أو أرقاماً أو أرباحاً. إن لم تتحقق من شركة بمصدر، قل ذلك صراحة. ميّز المؤكد من المحتمل. لا تقترح أي عمل يطلب دفع رسوم مقدمة من المستقبَل، ولا أي مخطط تسويق هرمي، ولا أي شيء يخالف شروط المنصات. لا تدّع أن أي شيء نُفّذ بالخلفية.`;
-
-function parseIdeas(rawText) {
-  if (!rawText) return [];
-  const cleaned = String(rawText).replace(/```json/gi, '').replace(/```/g, '').trim();
-  try {
-    const parsed = JSON.parse(cleaned);
-    if (Array.isArray(parsed)) return parsed;
-    if (parsed && Array.isArray(parsed.reply)) return parsed.reply;
-    return [];
-  } catch {
-    const arrayMatch = cleaned.match(/\[[\s\S]*\]/);
-    if (arrayMatch) {
-      try {
-        const parsed = JSON.parse(arrayMatch[0]);
-        return Array.isArray(parsed) ? parsed : [];
-      } catch { return []; }
-    }
-    return [];
+const CATALOG = [
+  {
+    title: 'كتابة وصف المنتجات والإعلانات بالعربية',
+    idea: 'قدّم خدمة كتابة وصف واضح للمنتجات والمنشورات الإعلانية للمتاجر الصغيرة.',
+    platform: 'تواصل مباشر مع المتاجر وصفحات البيع، أو منصات العمل الحر بعد استيفاء شروطها.',
+    price: 'ابدأ بعينة مجانية قصيرة ثم اتفق على سعر ثابت لكل مجموعة نصوص.',
+    guarantee: 'لا يوجد ضمان لقبول العميل أو تحقيق دخل.',
+    evidence: { found: false, source: '', summary: 'فكرة خدمة قابلة للتنفيذ وليست إعلان وظيفة مؤكداً أو فرصة متاحة تم التحقق منها.' },
+    first_24h: 'اكتب 3 نماذج قبل/بعد، جهّز ملف أعمال بسيط، وتواصل برسالة مخصصة مع 10 متاجر.',
+    risk: 'قد لا يرد العملاء؛ لا تدفع رسوم تسجيل أو ضمان عمل.',
+    confidence: 'ملاءمة المهارة جيدة؛ الطلب والدخل غير مضمونين.'
+  },
+  {
+    title: 'تصميم إعلانات ومنشورات للسوشيال ميديا',
+    idea: 'صمّم 3 نماذج منشورات لمطعم أو متجر محلي واعرض باقة أسبوعية.',
+    platform: 'التواصل المباشر مع الأنشطة المحلية ومجموعات أصحاب الأعمال.',
+    price: 'اتفق على سعر تجريبي واضح قبل بدء أي عمل.',
+    guarantee: 'لا يوجد ضمان للحصول على عميل.',
+    evidence: { found: false, source: '', summary: 'اقتراح خدمة وليس وظيفة منشورة أو عميلًا مؤكداً.' },
+    first_24h: 'أنشئ 3 تصاميم تجريبية، ضعها في معرض أعمال، وأرسلها إلى 10 أنشطة مناسبة.',
+    risk: 'المنافسة والتعديلات الكثيرة؛ حدّد عدد التعديلات قبل الاتفاق.',
+    confidence: 'ملاءمة المهارة جيدة؛ النتائج تعتمد على جودة النماذج والتواصل.'
+  },
+  {
+    title: 'تصميم شاشات وبث مباشر',
+    idea: 'جهّز حزمة Overlay بسيطة تشمل إطار كاميرا وتنبيهات وشاشة بداية.',
+    platform: 'مجتمعات صناع المحتوى والبث المباشر والتواصل مع المبتدئين.',
+    price: 'سعّر الحزمة حسب عدد العناصر ووقت التنفيذ.',
+    guarantee: 'لا يوجد ضمان لوجود مشترٍ.',
+    evidence: { found: false, source: '', summary: 'خدمة مقترحة؛ لم يتم التحقق من طلب شراء حالي.' },
+    first_24h: 'صمّم حزمة نموذجية واحدة، وصوّر معاينة، واعرضها على 5 صناع محتوى.',
+    risk: 'قد يحتاج العميل تعديلات كثيرة؛ اعرض نموذجًا ونطاق عمل محددًا.',
+    confidence: 'ملاءمة المهارة جيدة إذا كانت لديك نماذج قابلة للعرض.'
+  },
+  {
+    title: 'إنشاء صفحات هبوط بسيطة',
+    idea: 'أنشئ صفحة تعريفية لمنتج أو نشاط صغير مع زر تواصل واضح.',
+    platform: 'التواصل المباشر مع المشاريع الصغيرة وأصحاب الخدمات.',
+    price: 'ابدأ بنطاق صغير وسعر متفق عليه وتسليم محدد.',
+    guarantee: 'لا يوجد ضمان للتعاقد أو النتائج التجارية.',
+    evidence: { found: false, source: '', summary: 'اقتراح خدمة وليس مشروعًا متاحًا مؤكداً.' },
+    first_24h: 'أنشئ صفحة عرض واحدة، اختبرها على الهاتف، وجهّز رابط معاينة.',
+    risk: 'تغيّر متطلبات العميل؛ وثّق الصفحات والتعديلات المتفق عليها.',
+    confidence: 'ملاءمة المهارة متوسطة إلى جيدة حسب مستوى التنفيذ.'
+  },
+  {
+    title: 'إعداد نماذج ألعاب بسيطة',
+    idea: 'صمّم نموذج لعبة صغيرة أو فكرة تفاعلية قصيرة واعرضها كعمل تجريبي.',
+    platform: 'مجتمعات مطوري الألعاب والعمل الحر والتواصل المباشر.',
+    price: 'اتفق على نطاق النموذج ومدة التنفيذ قبل البدء.',
+    guarantee: 'لا يوجد ضمان للبيع أو الحصول على مشروع.',
+    evidence: { found: false, source: '', summary: 'مسار خدمة مقترح؛ لا توجد مهمة مدفوعة مؤكدة في هذه النتيجة.' },
+    first_24h: 'أنجز نموذجًا قصيرًا قابلًا للتجربة، وسجّل فيديو يوضح طريقة اللعب.',
+    risk: 'قد يستغرق التنفيذ أطول من المتوقع؛ ابدأ بنموذج محدود.',
+    confidence: 'ملاءمة المهارة تعتمد على وجود نموذج جاهز وخبرة التنفيذ.'
   }
-}
+];
 
-async function generate(prompt) {
-  const key = process.env.GEMINI_API_KEY.trim();
-  if (key.startsWith('sk-or-')) {
-    const model = process.env.OPENROUTER_MODEL || 'openrouter/auto';
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${key}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://sayyad-gemini.vercel.app',
-        'X-Title': 'صيّاد الفرص',
-      },
-      body: JSON.stringify({
-        model,
-        messages: [{ role: 'system', content: SYSTEM }, { role: 'user', content: prompt }],
-        temperature: 0.4,
-      }),
-    });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data?.error?.message || `OpenRouter HTTP ${response.status}`);
-    return { text: data.choices?.[0]?.message?.content || '', model, grounding: null };
-  }
-
-  const ai = new GoogleGenAI({ apiKey: key });
-  const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
-  const result = await ai.models.generateContent({
-    model,
-    contents: [{ role: 'user', parts: [{ text: prompt }] }],
-    config: { systemInstruction: SYSTEM, tools: [{ googleSearch: {} }], temperature: 0.4 },
-  });
-  return { text: result?.text || '', model, grounding: result?.candidates?.[0]?.groundingMetadata || null };
+function personalize(item, skills) {
+  const relevant = skills && skills.length
+    ? item.idea + ' اربط عرضك بأمثلة من مهاراتك: ' + skills.slice(0, 180) + '.'
+    : item.idea;
+  return { ...item, idea: relevant };
 }
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'الطريقة غير مسموحة' });
   if (!isOwner(req)) return res.status(401).json({ error: 'سجّل الدخول أولاً' });
-  if (!process.env.GEMINI_API_KEY?.trim()) return res.status(503).json({ error: 'مفتاح الذكاء الاصطناعي غير مضبوط في إعدادات Vercel.' });
 
-  const skills = String(req.body?.skills || DEFAULT_SKILLS).trim().slice(0, 1500);
-  const goal = String(req.body?.goal || 'أعطني أفضل 5 فرص سريعة الدخل، مع خطة أول يوم.').trim().slice(0, 1500);
-  const prompt = `مهاراتي:\n${skills}\n\nهدفي:\n${goal}\n\nأعطني أفضل 5 فرص سريعة الدخل، مرتبة من الأسرع دخلاً إلى الأبطأ.`;
-
-  try {
-    const result = await generate(prompt);
-    const reply = parseIdeas(result.text);
-    if (!reply.length) return res.status(502).json({ error: 'وصل رد من النموذج لكن تعذر تحويله إلى قائمة فرص. أعد المحاولة.' });
-    return res.status(200).json({ reply, model: result.model, grounding: result.grounding });
-  } catch (e) {
-    console.error('Ideas request failed:', e?.message || e);
-    return res.status(502).json({ error: 'تعذر الاتصال بمزوّد الذكاء الاصطناعي. تحقق من المفتاح والنموذج وحدود الاستخدام.' });
-  }
+  const skills = String(req.body?.skills || '').trim().slice(0, 1500);
+  const goal = String(req.body?.goal || '').trim().slice(0, 1500);
+  const reply = CATALOG.map(item => personalize(item, skills));
+  return res.status(200).json({
+    reply,
+    model: 'local-opportunity-engine',
+    grounding: null,
+    note: 'هذه أفكار خدمات وليست وظائف مؤكدة أو فرصًا تم التحقق من توفرها.'
+  });
 }
